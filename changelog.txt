@@ -1,7 +1,15 @@
 ---------------------------------------------------------------------------------------------------
-Version: 1.0.4
+Version: 1.0.5
 Date: ????
   Changes:
+---------------------------------------------------------------------------------------------------
+Version: 1.0.4
+Date: 2025-03-23
+  Changes:
+    - Default keybinding changed to SHIFT + TAB.
+    - Marked as incompatible with Avatars for now.
+    - Recipe moved to the 'transport' subgroup.
+    - Thumbnail updated.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.3
 Date: 2025-03-23

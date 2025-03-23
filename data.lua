@@ -6,7 +6,7 @@ data:extend({
 	{
 		type = "custom-input",
 		name = "clones-switch-character",
-		key_sequence = "ALT + TAB",
+		key_sequence = "SHIFT + TAB",
 		consuming = "game-only",
 		action = "lua",
 	},
@@ -22,6 +22,8 @@ data:extend({
 		},
 		results = { { type = "item", name = "clones-clone", amount = 1 } },
 		category = "hand-crafting",
+		subgroup = "transport",
+		order = "a",
 	},
 	{
 		type = "item",
