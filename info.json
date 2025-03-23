@@ -1,0 +1,10 @@
+{
+    "name": "Clones",
+    "author": "thesixthroc",
+    "version": "1.0.4",
+    "title": "Clones",
+    "description": "Players can handcraft character clones out of nutrients and bioflux.\n\nA new keybinding switches players between each of their characters (defaults to ALT+TAB).",
+    "contact": "Discord: thesixthroc",
+    "factorio_version": "2.0",
+    "dependencies": ["base >= 2.0.41", "space-age >= 2.0.41"]
+}
