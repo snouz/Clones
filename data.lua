@@ -13,6 +13,7 @@ data:extend({
 	{
 		type = "recipe",
 		name = "clones-clone",
+		icon = "__Clones__/graphics/icons/cloning.png",
 		enabled = false,
 		energy_required = 5,
 		-- energy_required = 1,
@@ -28,8 +29,9 @@ data:extend({
 	{
 		type = "item",
 		name = "clones-clone",
-		icon = data.raw.character.character.icon,
-		icon_size = data.raw.character.character.icon_size or 64,
+		icon = "__Clones__/graphics/icons/cloning.png",
+		--icon = data.raw.character.character.icon,
+		--icon_size = data.raw.character.character.icon_size or 64,
 		subgroup = "intermediate-product",
 		order = "h[clones-clone]",
 		stack_size = 1,
@@ -37,8 +39,9 @@ data:extend({
 	{
 		type = "technology",
 		name = "character-cloning",
-		icon = data.raw.character.character.icon,
-		icon_size = data.raw.character.character.icon_size or 64,
+		icon = "__Clones__/graphics/technology/clones-technology.png",
+		--icon = data.raw.character.character.icon,
+		--icon_size = data.raw.character.character.icon_size or 64,
 		effects = {
 			{
 				type = "unlock-recipe",
