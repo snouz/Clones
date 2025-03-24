@@ -6,7 +6,7 @@ data:extend({
 	{
 		type = "custom-input",
 		name = "clones-switch-character",
-		key_sequence = "SHIFT + TAB",
+		key_sequence = "CONTROL + TAB",
 		consuming = "game-only",
 		action = "lua",
 	},

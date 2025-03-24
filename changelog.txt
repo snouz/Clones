@@ -2,7 +2,8 @@
 Version: 1.0.6
 Date: 2025-03-24
   Changes:
-    - Custom thumnail, tech and recipe icons
+    - Custom thumbnail, tech and recipe icons (thanks snouz!)
+    - Keybinding changed to CTRL + TAB.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.5
 Date: 2025-03-23
