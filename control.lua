@@ -80,17 +80,56 @@ script.on_event("clones-switch-character", function(event)
 	Public.switch_to_character(player, next_character)
 end)
 
-script.on_event(defines.events.on_player_died, function(event)
+script.on_event("clones-switch-character-reverse", function(event)
 	local player = game.players[event.player_index]
 	storage.characters = storage.characters or {}
-	if not storage.characters[player.index] then
+	if not (player and player.character and storage.characters[player.index]) then
 		return
 	end
 
 	local next_character = Public.get_next_character(player.index, player.character, true)
 	Public.switch_to_character(player, next_character)
+end)
 
-	player.ticks_to_respawn = 0
+script.on_event(defines.events.on_pre_player_died, function(event)
+	local player = game.players[event.player_index]
+	local next_character = Public.get_next_character(player.index, player.character, true)
+
+	if next_character then
+		Public.switch_to_character(player, next_character)
+	end
+end)
+
+script.on_event(defines.events.on_player_controller_changed, function(event)
+	local player = game.players[event.player_index]
+	if not (player and player.valid) then
+		return
+	end
+
+	local controller = player.physical_controller_type
+	if controller ~= defines.controllers.character then
+		return
+	end
+
+	local entity = player.character
+	if not (entity and entity.valid) then
+		return
+	end
+
+	storage.characters = storage.characters or {}
+	storage.characters[player.index] = storage.characters[player.index] or {}
+
+	local found = false
+	for _, char in ipairs(storage.characters[player.index]) do
+		if char == entity then
+			found = true
+			break
+		end
+	end
+
+	if not found then
+		table.insert(storage.characters[player.index], entity)
+	end
 end)
 
 function Public.get_next_character(player_index, current_character, backwards)

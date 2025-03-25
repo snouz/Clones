@@ -1,7 +1,11 @@
 ---------------------------------------------------------------------------------------------------
-Version: 1.0.7
+Version: 1.1.0
 Date: ????
+  Bugfixes:
+    - Fixed cases of cycling between characters failing due to character death.
+    - Fixed cases of cycling between characters failing due to character entering space platforms.
   Changes:
+    - Added keybinding to cycle through characters in reverse, bound by default to CTRL + SHIFT + TAB.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.6
 Date: 2025-03-24

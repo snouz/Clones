@@ -11,6 +11,13 @@ data:extend({
 		action = "lua",
 	},
 	{
+		type = "custom-input",
+		name = "clones-switch-character-reverse",
+		key_sequence = "CONTROL + SHIFT + TAB",
+		consuming = "game-only",
+		action = "lua",
+	},
+	{
 		type = "recipe",
 		name = "clones-clone",
 		icon = "__Clones__/graphics/icons/cloning.png",
