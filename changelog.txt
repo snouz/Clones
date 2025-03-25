@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.0
-Date: ????
+Date: 2025-03-25
   Bugfixes:
     - Fixed cases of cycling between characters failing due to character death.
     - Fixed cases of cycling between characters failing due to character entering space platforms.
