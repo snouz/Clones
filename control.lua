@@ -2,10 +2,11 @@ local Public = {}
 
 script.on_event(defines.events.on_player_crafted_item, function(event)
 	local name = event.item_stack.name
-	local quality = event.item_stack.quality
 	if name ~= "clones-clone" then
 		return
 	end
+
+	local quality = event.item_stack.quality
 
 	local player = game.players[event.player_index]
 	if not (player and player.character and player.character.valid) then
@@ -87,16 +88,16 @@ script.on_event("clones-switch-character-reverse", function(event)
 		return
 	end
 
-	local next_character = Public.get_next_character(player.index, player.character, true)
-	Public.switch_to_character(player, next_character)
+	local previous_character = Public.get_next_character(player.index, player.character, true)
+	Public.switch_to_character(player, previous_character)
 end)
 
 script.on_event(defines.events.on_pre_player_died, function(event)
 	local player = game.players[event.player_index]
-	local next_character = Public.get_next_character(player.index, player.character, true)
+	local previous_character = Public.get_next_character(player.index, player.character, true)
 
-	if next_character then
-		Public.switch_to_character(player, next_character)
+	if previous_character then
+		Public.switch_to_character(player, previous_character)
 	end
 end)
 

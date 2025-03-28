@@ -47,8 +47,7 @@ data:extend({
 		type = "technology",
 		name = "character-cloning",
 		icon = "__Clones__/graphics/technology/clones-technology.png",
-		--icon = data.raw.character.character.icon,
-		--icon_size = data.raw.character.character.icon_size or 64,
+		icon_size = 256,
 		effects = {
 			{
 				type = "unlock-recipe",
