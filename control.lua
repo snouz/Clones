@@ -56,7 +56,7 @@ script.on_event(defines.events.on_player_crafted_item, function(event)
     end
   end
 
-  -- If not found, add the character to storage
+  -- If not found, add character storage
   if not current_character_found then
     table.insert(storage.characters[player.index], current_character)
     current_index = #storage.characters[player.index]
@@ -148,6 +148,24 @@ script.on_event(defines.events.on_player_controller_changed, function(event)
     table.insert(storage.characters[player.index], entity)
   end
 end)
+
+--[[-- Prevent clones from entering space via rocket launch
+script.on_event(defines.events.on_rocket_launch_ordered, function(event)
+  local passenger = event.rocket.get_passenger()
+  local passenger = event.player_index 
+  if passenger and passenger.name == "character" then
+    for _, chars in pairs(storage.characters) do
+      for _, char in ipairs(chars) do
+        if char == passenger then
+          event.rocket.clear_passenger()
+          game.players[event.player_index].print("Clones are restricted to this surface and cannot enter space!")
+          return
+        end
+      end
+    end
+  end
+end)
+]]
 
 -- Function to retrieve the next or previous character for a player
 function Public.get_next_character(player_index, current_character, backwards)

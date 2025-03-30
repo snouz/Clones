@@ -1,7 +1,9 @@
+require ("prototypes.cloning-machine")
+
 data:extend({
   {
     type = "recipe-category",
-    name = "hand-crafting",
+    name = "cloning",
   },
   {
     type = "custom-input",
@@ -30,7 +32,7 @@ data:extend({
       {type = "item", name = "iron-plate", amount = 1},
     },
     results = {{type = "item", name = "clones-clone", amount = 1}},
-    category = "hand-crafting",
+    category = "cloning",
     subgroup = "transport",
     order = "a",
   },
@@ -50,6 +52,10 @@ data:extend({
       {
         type = "unlock-recipe",
         recipe = "clones-clone",
+      },
+      {
+        type = "unlock-recipe",
+        recipe = "cloning-machine",
       },
     },
     prerequisites = { "agricultural-science-pack" },
