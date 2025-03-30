@@ -289,6 +289,11 @@ function Public.switch_to_character(player, target_character)
   if not (player and target_character and target_character.valid) then
     return
   end
+  
+  local was_previous_character_the_original = player.tag == ""
+  if was_previous_character_the_original then
+    player.force.add_chart_tag(player.character.surface, {position = player.character.position, text = player.name}) -- icon = {item = "iron-plate"}, 
+  end
 
   -- Temporarily switch to remote/god mode, then switch to the new character
   player.set_controller({ type = defines.controllers.remote })
@@ -299,6 +304,14 @@ function Public.switch_to_character(player, target_character)
     player.tag = "(Clone " .. target_character.name_tag .. ")"
   else
     player.tag = ""
+    local alltags = player.force.find_chart_tags(player.character.surface)
+    if alltags then
+      for _, tag in pairs(alltags) do --, {{player.position.x -1, player.position.y -1}, {player.position.x + 1, player.position.y + 1}}
+        if tag.text == player.name then
+          tag.destroy()
+        end
+      end
+    end
   end
 
 
