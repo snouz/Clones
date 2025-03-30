@@ -7,19 +7,19 @@ data:extend({
   },
   {
     type = "custom-input",
-    name = "clones-switch-character",
-    key_sequence = "CONTROL + TAB",
+    name = "clones-switch-character-next",
+    key_sequence = "N",
     consuming = "game-only",
     action = "lua",
   },
   {
     type = "custom-input",
-    name = "clones-switch-character-reverse",
-    key_sequence = "CONTROL + SHIFT + TAB",
+    name = "clones-switch-character-previous",
+    key_sequence = "CONTROL + N",
     consuming = "game-only",
     action = "lua",
   },
-  {
+  --[[{
     type = "recipe",
     name = "clones-clone",
     icon = "__Clones__/graphics/icons/cloning.png",
@@ -42,17 +42,17 @@ data:extend({
     icon = "__Clones__/graphics/icons/cloning.png",    subgroup = "intermediate-product",
     order = "h[clones-clone]",
     stack_size = 1,
-  },
+  },]]
   {
     type = "technology",
     name = "character-cloning",
     icon = "__Clones__/graphics/technology/clones-technology.png",
     icon_size = 256,
     effects = {
-      {
-        type = "unlock-recipe",
-        recipe = "clones-clone",
-      },
+      --{
+      --  type = "unlock-recipe",
+      --  recipe = "clones-clone",
+      --},
       {
         type = "unlock-recipe",
         recipe = "cloning-machine",

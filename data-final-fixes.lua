@@ -1,5 +1,6 @@
-local lib = require("lib")
+--local lib = require("lib")
 
+--[[
 for _, char in pairs(data.raw.character) do
   if not lib.find(char.crafting_categories or {}, "cloning") then
     char.crafting_categories = char.crafting_categories or {}
@@ -16,4 +17,4 @@ for _, char in pairs(data.raw.character) do
       },
     },
   }
-end
+end]]

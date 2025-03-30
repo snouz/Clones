@@ -60,7 +60,7 @@ data:extend(
     type = "assembling-machine",
     name = "cloning-machine",
     icon = "__base__/graphics/icons/assembling-machine-3.png",
-    flags = {"placeable-neutral","placeable-player", "player-creation"},
+    flags = {"not-rotatable","placeable-neutral","placeable-player", "player-creation"},
     minable = {mining_time = 0.2, result = "cloning-machine"},
     max_health = 400,
     corpse = "assembling-machine-3-remnants",

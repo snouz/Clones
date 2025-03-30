@@ -1,5 +1,79 @@
 local Public = {}
+--current_global_character 
 
+
+
+
+--local function spawn_clone_with_cloning_machine()
+
+--end
+
+script.on_event(defines.events.on_built_entity, function(event)
+  if event.entity and event.entity.name == "cloning-machine" then
+    local machine = event.entity
+    --spawn_clone_with_cloning_machine()
+
+    local player = game.players[event.player_index]
+    if not (player and player.character and player.character.valid) then
+      return
+    end
+
+    -- Store characters associated with the player
+    storage.characters = storage.characters or {}
+    storage.characters[player.index] = storage.characters[player.index] or {}
+    storage.currentclonenumber = storage.currentclonenumber or {}
+    storage.currentclonenumber[player.index] = storage.currentclonenumber[player.index] or 1
+
+    -- set index of active character
+    local current_character = player.character
+    local current_character_found = false
+    local current_index = 1
+    for i, char in ipairs(storage.characters[player.index]) do
+      if char == current_character then
+        current_character_found = true
+        current_index = i
+        break
+      end
+    end
+    -- If not found, add character storage
+    if not current_character_found then
+      table.insert(storage.characters[player.index], current_character)
+      current_index = #storage.characters[player.index]
+    end
+
+
+
+
+    local pos = machine.surface.find_non_colliding_position("character", {machine.position.x , machine.position.y + 1.5}, 100, 0.3)
+
+    if pos then
+      -- Create the cloned character entity
+      local clone = machine.surface.create_entity({
+        name = player.character.name, -- .. " (Clone #" .. current_index - 1 .. ")",
+        position = pos,
+        force = player.force,
+        direction = defines.direction.south,
+        move_stuck_players = true,
+        create_build_effect_smoke = true,
+        --name_tag = {currentclonenumber = tostring(storage.currentclonenumber[player.index])}
+      })
+      clone.name_tag = tostring(storage.currentclonenumber[player.index])
+
+      -- Store the clone
+      table.insert(storage.characters[player.index], current_index + 1, clone)
+      storage.currentclonenumber[player.index] = storage.currentclonenumber[player.index] + 1
+      --local next_character = Public.get_next_character(player.index, current_character)
+      --Public.switch_to_character(player, next_character)
+    end
+
+
+
+  end
+end)
+--name_tag 
+
+
+--[[
 -- Event handler for when a player crafts an item
 script.on_event(defines.events.on_player_crafted_item, function(event)
   local name = event.item_stack.name
@@ -78,9 +152,10 @@ script.on_event(defines.events.on_player_crafted_item, function(event)
     Public.switch_to_character(player, next_character)
   end
 end)
+]]
 
 -- Event handler for switching characters forward
-script.on_event("clones-switch-character", function(event)
+script.on_event("clones-switch-character-next", function(event)
   local player = game.players[event.player_index]
   storage.characters = storage.characters or {}
   if not (player and player.character and storage.characters[player.index]) then
@@ -92,7 +167,7 @@ script.on_event("clones-switch-character", function(event)
 end)
 
 -- Event handler for switching characters in reverse order
-script.on_event("clones-switch-character-reverse", function(event)
+script.on_event("clones-switch-character-previous", function(event)
   local player = game.players[event.player_index]
   storage.characters = storage.characters or {}
   if not (player and player.character and storage.characters[player.index]) then
@@ -220,6 +295,13 @@ function Public.switch_to_character(player, target_character)
   player.set_controller({ type = defines.controllers.god })
   player.teleport(target_character.position, target_character.surface)
   player.set_controller({ type = defines.controllers.character, character = target_character })
+  if target_character.name_tag then
+    player.tag = "(Clone " .. target_character.name_tag .. ")"
+  else
+    player.tag = ""
+  end
+
+
 end
 
 return Public
