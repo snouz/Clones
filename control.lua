@@ -47,6 +47,8 @@ script.on_event(defines.events.on_built_entity, function(event)
     local pos = machine.surface.find_non_colliding_position("character", {machine.position.x , machine.position.y + 1.5}, 100, 0.3)
 
     if pos then
+      local idx_num = storage.currentclonenumber[player.index]
+      local idx = tostring(idx_num)
       local clone = machine.surface.create_entity({
         name = player.character.name,
         position = pos,
@@ -55,11 +57,14 @@ script.on_event(defines.events.on_built_entity, function(event)
         move_stuck_players = true,
         create_build_effect_smoke = true,
       })
-      clone.name_tag = tostring(storage.currentclonenumber[player.index])
-      machine.name_tag = tostring(storage.currentclonenumber[player.index])
-      player.force.add_chart_tag(machine.surface, {position = machine.position, text = tostring(storage.currentclonenumber[player.index]), icon = {type = "virtual", name = "clone_machine"}})
-      player.force.add_chart_tag(machine.surface, {position = pos, text = player.name .. "(Clone " .. tostring(storage.currentclonenumber[player.index]) .. ")", icon = {type = "virtual", name = "clone_character"}})
-      table.insert(storage.characters[player.index], current_index + 1, clone)
+      clone.name_tag = "(C-" .. idx .. ")" -- C = clone, CV = clone vat
+      machine.name_tag = idx
+      player.force.add_chart_tag(machine.surface, {position = machine.position, text = "CV-" .. idx, icon = {type = "virtual", name = "clone_machine"}})
+      player.force.add_chart_tag(machine.surface, {position = pos, text = player.name .. " " .. clone.name_tag, icon = {type = "virtual", name = "clone_character"}})
+      player.print("" .. current_index)
+      --local latest_idx = #storage.characters[player.index] +1
+      table.insert(storage.characters[player.index], current_index + 1, clone) -- #storage.characters[player.index], clone)
+      --storage.characters[player.index][#storage.characters[player.index]]
       storage.currentclonenumber[player.index] = storage.currentclonenumber[player.index] + 1
     end
 
@@ -69,109 +74,23 @@ script.on_event(defines.events.on_built_entity, function(event)
 end)
 --on entity destroyed: remove entity tag, kill related clone
 
-
---[[
--- Event handler for when a player crafts an item
-script.on_event(defines.events.on_player_crafted_item, function(event)
-  local name = event.item_stack.name
-  -- Only proceed if the crafted item is "clones-clone"
-  if name ~= "clones-clone" then
-    return
-  end
-
-  local quality = event.item_stack.quality
-  local player = game.players[event.player_index]
-  -- Ensure the player and their character are valid
-  if not (player and player.character and player.character.valid) then
-    return
-  end
-
-  -- Remove the crafted clone item from the player's inventory
-  player.remove_item({ name = name, quality = quality, count = 1 })
-
-  -- Check the crafting queue and refund ingredients if necessary
-  local crafting_queue = player.crafting_queue
-  if crafting_queue then
-    for i = #crafting_queue, 1, -1 do
-      local craft = crafting_queue[i]
-      if craft.recipe == "clones-clone" then
-        local recipe = prototypes.recipe["clones-clone"]
-        local ingredients = recipe.ingredients
-
-        -- Cancel crafting and refund the ingredients
-        player.cancel_crafting({ index = i, count = craft.count })
-        for _, ingredient in pairs(ingredients) do
-          player.insert({
-            name = ingredient.name,
-            count = ingredient.amount * craft.count,
-            quality = quality,
-          })
-        end
-      end
-    end
-  end
-
-  -- Store characters associated with the player
-  storage.characters = storage.characters or {}
-  storage.characters[player.index] = storage.characters[player.index] or {}
-
-  local current_character = player.character
-  local current_character_found = false
-  local current_index = 1
-  -- Check if the player's current character is already stored
-  for i, char in ipairs(storage.characters[player.index]) do
-    if char == current_character then
-      current_character_found = true
-      current_index = i
-      break
-    end
-  end
-
-  -- If not found, add character storage
-  if not current_character_found then
-    table.insert(storage.characters[player.index], current_character)
-    current_index = #storage.characters[player.index]
-  end
-
-  -- Find a valid spawn position for the clone
-  local pos = player.surface.find_non_colliding_position("character", player.position, 100, 1)
-  if pos then
-    -- Create the cloned character entity
-    local clone = player.surface.create_entity({
-      name = player.character.name,
-      position = pos,
-      force = player.force,
-    })
-
-    -- Store the clone and switch to it
-    table.insert(storage.characters[player.index], current_index + 1, clone)
-    local next_character = Public.get_next_character(player.index, current_character)
-    Public.switch_to_character(player, next_character)
-  end
-end)
-]]
-
--- Event handler for switching characters forward
+-- Switching characters with hotkey
 script.on_event("clones-switch-character-next", function(event)
   local player = game.players[event.player_index]
   storage.characters = storage.characters or {}
   if not (player and player.character and storage.characters[player.index]) then
     return
   end
-
-  local next_character = Public.get_next_character(player.index, player.character, true)
+  local next_character = Public.get_next_character(player.index, player.character)
   Public.switch_to_character(player, next_character)
 end)
-
--- Event handler for switching characters in reverse order
 script.on_event("clones-switch-character-previous", function(event)
   local player = game.players[event.player_index]
   storage.characters = storage.characters or {}
   if not (player and player.character and storage.characters[player.index]) then
     return
   end
-
-  local previous_character = Public.get_next_character(player.index, player.character)
+  local previous_character = Public.get_next_character(player.index, player.character, true)
   Public.switch_to_character(player, previous_character)
 end)
 
@@ -221,24 +140,6 @@ script.on_event(defines.events.on_player_controller_changed, function(event)
   end
 end)
 
---[[-- Prevent clones from entering space via rocket launch
-script.on_event(defines.events.on_rocket_launch_ordered, function(event)
-  local passenger = event.rocket.get_passenger()
-  local passenger = event.player_index 
-  if passenger and passenger.name == "character" then
-    for _, chars in pairs(storage.characters) do
-      for _, char in ipairs(chars) do
-        if char == passenger then
-          event.rocket.clear_passenger()
-          game.players[event.player_index].print("Clones are restricted to this surface and cannot enter space!")
-          return
-        end
-      end
-    end
-  end
-end)
-]]
-
 -- Function to retrieve the next or previous character for a player
 function Public.get_next_character(player_index, current_character, backwards)
   storage.characters = storage.characters or {}
@@ -286,12 +187,20 @@ function Public.switch_to_character(player, target_character)
   if not (player and target_character and target_character.valid) then
     return
   end
-  
-  --local was_previous_character_the_original = player.tag == ""
-  if (player.tag == "" or not player.tag) then
-    player.force.add_chart_tag(player.character.surface, {position = player.character.position, text = player.name, icon = {type = "virtual", name = "mainplayer_character"}}) -- icon = {item = "iron-plate"}, 
+
+  if player.tag and player.tag ~= "" then
+    player.force.add_chart_tag(player.character.surface, {
+      position = player.character.position, 
+      text = player.name .. " " .. player.character.name_tag, 
+      icon = {type = "virtual", name = "clone_character"}
+    })
   else
-    player.force.add_chart_tag(player.character.surface, {position = player.character.position, text = player.name .. "(Clone " .. player.character.name_tag .. ")", icon = {type = "virtual", name = "clone_character"}}) -- icon = {item = "iron-plate"}, 
+    player.force.add_chart_tag(player.character.surface, {
+      position = player.character.position, 
+      text = player.name, 
+      icon = {type = "virtual", name = "mainplayer_character"}
+    })
+
   end
 
   -- Temporarily switch to remote/god mode, then switch to the new character
@@ -300,19 +209,25 @@ function Public.switch_to_character(player, target_character)
   player.teleport(target_character.position, target_character.surface)
   player.set_controller({ type = defines.controllers.character, character = target_character })
 
-  local maptag = player.force.find_chart_tags(player.character.surface, {{player.position.x -0.1, player.position.y -0.1}, {player.position.x + 0.1, player.position.y + 0.1}})
+  local maptag = player.force.find_chart_tags(player.character.surface, {{player.position.x -1, player.position.y -1}, {player.position.x + 1, player.position.y + 1}})
+  if (target_character.name_tag) then
+    player.tag = target_character.name_tag
     if maptag then
       for _, tag in pairs(maptag) do
-        --if tag.text == player.name then
-        tag.destroy()
-        --end
+        if tag.text == player.name .. " " .. player.character.name_tag then
+          tag.destroy()
+        end
       end
     end
-
-  if target_character.name_tag then
-    player.tag = "(Clone " .. target_character.name_tag .. ")"
   else
     player.tag = ""
+    if maptag then
+      for _, tag in pairs(maptag) do
+        if tag.text == player.name then
+          tag.destroy()
+        end
+      end
+    end
   end
 
 

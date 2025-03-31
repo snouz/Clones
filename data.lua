@@ -40,7 +40,7 @@ data:extend({
   {
     type = "virtual-signal",
     name = "clone_machine",
-    icons = {{icon = "__Clones__/graphics/icons/clone-machine.png", size = 64, scale = 0.2}},
+    icons = {{icon = "__Clones__/graphics/icons/clone-machine.png", size = 64, scale = 0.1}},
     subgroup = "virtual-signal-special",
     order = "a[special]-[1everything]",
     hidden = true,
