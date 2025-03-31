@@ -42,13 +42,13 @@ script.on_event(defines.events.on_built_entity, function(event)
       current_character.name_tag = "clone-original"
     end
 
-    local pos = machine.surface.find_non_colliding_position("character", {machine.position.x , machine.position.y + 1.5}, 100, 0.3)
+    local pos = machine.surface.find_non_colliding_position("character_cloned", {machine.position.x , machine.position.y + 1.5}, 100, 0.3)
 
     if pos then
       local idx_num = storage.currentclonenumber[player.index]
       local idx = tostring(idx_num)
       local clone = machine.surface.create_entity({
-        name = player.character.name,
+        name = "character_cloned", --player.character.name,
         position = pos,
         force = player.force,
         direction = defines.direction.south,
@@ -56,10 +56,10 @@ script.on_event(defines.events.on_built_entity, function(event)
         create_build_effect_smoke = true,
       })
       clone.name_tag = "(C-" .. idx .. ")" -- C = clone, CV = clone vat
-      machine.name_tag = idx
+      machine.name_tag = "CV-" .. idx
       player.force.add_chart_tag(machine.surface, {
         position = machine.position, 
-        text = "CV-" .. idx, 
+        text = machine.name_tag, 
         icon = {type = "virtual", name = "clone_machine"}
       })
       player.force.add_chart_tag(machine.surface, {
@@ -67,7 +67,6 @@ script.on_event(defines.events.on_built_entity, function(event)
         text = player.name .. " " .. clone.name_tag, 
         icon = {type = "virtual", name = "clone_character"}
       })
-      player.print("" .. current_index)
       table.insert(storage.characters[player.index], current_index + 1, clone)
       storage.currentclonenumber[player.index] = storage.currentclonenumber[player.index] + 1
     end
@@ -103,7 +102,7 @@ end)
 script.on_event(defines.events.on_pre_player_died, function(event)
   local player = game.players[event.player_index]
   if player.character.name_tag then
-    if player.character.name_tag ~= "clone-original" then
+    if player.character.name == "character_cloned" then
       local previous_character = Public.get_next_character(player.index, player.character, true)
       if previous_character then
         Public.switch_to_character(player, previous_character, false)
@@ -112,7 +111,18 @@ script.on_event(defines.events.on_pre_player_died, function(event)
   end
 end)
 
+-- Event handler for when a building is destroyed
+script.on_event(defines.events.on_entity_died, function(event)
+  if event.entity
+    if event.entity.name == "cloning-machine" and event.force == player then
 
+    if event.entity.name_tag then
+      local nametag = event.entity.name_tag
+      string.sub(nametag, 3)
+      --local maptag = player.force.find_chart_tags(player.character.surface, {{player.position.x -1, player.position.y -1}, {player.position.x + 1, player.position.y + 1}})
+
+  end
+end)
 
 -- Event handler for when a player switches controllers
 script.on_event(defines.events.on_player_controller_changed, function(event)
@@ -223,7 +233,7 @@ function Public.switch_to_character(player, target_character, add_tag_to_previou
   -- Handle player name and map tag removal
   local maptag = player.force.find_chart_tags(player.character.surface, {{player.position.x -1, player.position.y -1}, {player.position.x + 1, player.position.y + 1}})
   if target_character.name_tag then
-    if target_character.name_tag ~= "clone-original" then
+    if target_character.name == "character_cloned" then
       player.tag = target_character.name_tag
       if maptag then
         for _, tag in pairs(maptag) do

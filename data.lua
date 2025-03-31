@@ -1,4 +1,5 @@
 require ("prototypes.cloning-machine")
+require ("__space-age__.prototypes.entity.mech-armor-animations")
 
 data:extend({
   {
@@ -99,3 +100,12 @@ data:extend({
     },
   },
 })
+
+local character_cloned = table.deepcopy(data.raw.character["character"])
+character_cloned.name = "character_cloned"
+character_cloned.max_health = data.raw.character["character"].max_health /2
+character_cloned.inventory_size = 55
+character_cloned.icon = "__Clones__/graphics/icons/clone-character.png"
+character_cloned.crafting_categories = {"crafting", "electronics", "pressing", "recycling-or-hand-crafting", "organic-or-hand-crafting", "organic-or-assembling"}
+character_cloned.synced_footstep_particle_triggers[1].tiles = { "water-shallow", "wetland-blue-slime", "wetland-light-green-slime", "wetland-green-slime", "wetland-light-dead-skin", "wetland-dead-skin", "wetland-pink-tentacle", "wetland-red-tentacle", "wetland-yumako", "wetland-jellynut"}
+data:extend({character_cloned})
