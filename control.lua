@@ -39,10 +39,8 @@ script.on_event(defines.events.on_built_entity, function(event)
     if not current_character_found then
       table.insert(storage.characters[player.index], current_character)
       current_index = #storage.characters[player.index]
+      current_character.name_tag = "clone-original"
     end
-
-
-
 
     local pos = machine.surface.find_non_colliding_position("character", {machine.position.x , machine.position.y + 1.5}, 100, 0.3)
 
@@ -59,12 +57,18 @@ script.on_event(defines.events.on_built_entity, function(event)
       })
       clone.name_tag = "(C-" .. idx .. ")" -- C = clone, CV = clone vat
       machine.name_tag = idx
-      player.force.add_chart_tag(machine.surface, {position = machine.position, text = "CV-" .. idx, icon = {type = "virtual", name = "clone_machine"}})
-      player.force.add_chart_tag(machine.surface, {position = pos, text = player.name .. " " .. clone.name_tag, icon = {type = "virtual", name = "clone_character"}})
+      player.force.add_chart_tag(machine.surface, {
+        position = machine.position, 
+        text = "CV-" .. idx, 
+        icon = {type = "virtual", name = "clone_machine"}
+      })
+      player.force.add_chart_tag(machine.surface, {
+        position = pos, 
+        text = player.name .. " " .. clone.name_tag, 
+        icon = {type = "virtual", name = "clone_character"}
+      })
       player.print("" .. current_index)
-      --local latest_idx = #storage.characters[player.index] +1
-      table.insert(storage.characters[player.index], current_index + 1, clone) -- #storage.characters[player.index], clone)
-      --storage.characters[player.index][#storage.characters[player.index]]
+      table.insert(storage.characters[player.index], current_index + 1, clone)
       storage.currentclonenumber[player.index] = storage.currentclonenumber[player.index] + 1
     end
 
@@ -82,7 +86,7 @@ script.on_event("clones-switch-character-next", function(event)
     return
   end
   local next_character = Public.get_next_character(player.index, player.character)
-  Public.switch_to_character(player, next_character)
+  Public.switch_to_character(player, next_character, true)
 end)
 script.on_event("clones-switch-character-previous", function(event)
   local player = game.players[event.player_index]
@@ -91,19 +95,24 @@ script.on_event("clones-switch-character-previous", function(event)
     return
   end
   local previous_character = Public.get_next_character(player.index, player.character, true)
-  Public.switch_to_character(player, previous_character)
+  Public.switch_to_character(player, previous_character, true)
 end)
+
 
 -- Event handler for when a player dies
 script.on_event(defines.events.on_pre_player_died, function(event)
   local player = game.players[event.player_index]
-  local previous_character = Public.get_next_character(player.index, player.character, true)
-
-  -- If a previous character exists, switch to it
-  if previous_character then
-    Public.switch_to_character(player, previous_character)
+  if player.character.name_tag then
+    if player.character.name_tag ~= "clone-original" then
+      local previous_character = Public.get_next_character(player.index, player.character, true)
+      if previous_character then
+        Public.switch_to_character(player, previous_character, false)
+      end
+    end
   end
 end)
+
+
 
 -- Event handler for when a player switches controllers
 script.on_event(defines.events.on_player_controller_changed, function(event)
@@ -123,6 +132,8 @@ script.on_event(defines.events.on_player_controller_changed, function(event)
     return
   end
 
+
+
   -- Ensure the character is stored in the player's character list
   storage.characters = storage.characters or {}
   storage.characters[player.index] = storage.characters[player.index] or {}
@@ -134,7 +145,6 @@ script.on_event(defines.events.on_player_controller_changed, function(event)
       break
     end
   end
-
   if not found then
     table.insert(storage.characters[player.index], entity)
   end
@@ -183,24 +193,25 @@ function Public.get_next_character(player_index, current_character, backwards)
 end
 
 -- Function to switch a player to a different character
-function Public.switch_to_character(player, target_character)
+function Public.switch_to_character(player, target_character, add_tag_to_previous)
   if not (player and target_character and target_character.valid) then
     return
   end
 
-  if player.tag and player.tag ~= "" then
-    player.force.add_chart_tag(player.character.surface, {
-      position = player.character.position, 
-      text = player.name .. " " .. player.character.name_tag, 
-      icon = {type = "virtual", name = "clone_character"}
-    })
-  else
-    player.force.add_chart_tag(player.character.surface, {
-      position = player.character.position, 
-      text = player.name, 
-      icon = {type = "virtual", name = "mainplayer_character"}
-    })
-
+  if add_tag_to_previous then
+    if player.tag and player.tag ~= "" and player.tag ~= "clone-original" and player.character.name_tag then
+      player.force.add_chart_tag(player.character.surface, {
+        position = player.character.position, 
+        text = player.name .. " " .. player.character.name_tag, 
+        icon = {type = "virtual", name = "clone_character"}
+      })
+    else
+      player.force.add_chart_tag(player.character.surface, {
+        position = player.character.position, 
+        text = player.name, 
+        icon = {type = "virtual", name = "mainplayer_character"}
+      })
+    end
   end
 
   -- Temporarily switch to remote/god mode, then switch to the new character
@@ -209,8 +220,9 @@ function Public.switch_to_character(player, target_character)
   player.teleport(target_character.position, target_character.surface)
   player.set_controller({ type = defines.controllers.character, character = target_character })
 
+  -- Handle player name and map tag removal
   local maptag = player.force.find_chart_tags(player.character.surface, {{player.position.x -1, player.position.y -1}, {player.position.x + 1, player.position.y + 1}})
-  if (target_character.name_tag) then
+  if target_character.name_tag ~= "clone-original" then
     player.tag = target_character.name_tag
     if maptag then
       for _, tag in pairs(maptag) do
