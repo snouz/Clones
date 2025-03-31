@@ -222,21 +222,23 @@ function Public.switch_to_character(player, target_character, add_tag_to_previou
 
   -- Handle player name and map tag removal
   local maptag = player.force.find_chart_tags(player.character.surface, {{player.position.x -1, player.position.y -1}, {player.position.x + 1, player.position.y + 1}})
-  if target_character.name_tag ~= "clone-original" then
-    player.tag = target_character.name_tag
-    if maptag then
-      for _, tag in pairs(maptag) do
-        if tag.text == player.name .. " " .. player.character.name_tag then
-          tag.destroy()
+  if target_character.name_tag then
+    if target_character.name_tag ~= "clone-original" then
+      player.tag = target_character.name_tag
+      if maptag then
+        for _, tag in pairs(maptag) do
+          if tag.text == player.name .. " " .. player.character.name_tag then
+            tag.destroy()
+          end
         end
       end
-    end
-  else
-    player.tag = ""
-    if maptag then
-      for _, tag in pairs(maptag) do
-        if tag.text == player.name then
-          tag.destroy()
+    else
+      player.tag = ""
+      if maptag then
+        for _, tag in pairs(maptag) do
+          if tag.text == player.name then
+            tag.destroy()
+          end
         end
       end
     end
