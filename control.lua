@@ -74,6 +74,7 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
       })
       table.insert(storage.characters[player.index], current_index + 1, clone)
       storage.currentclonenumber[player.index] = storage.currentclonenumber[player.index] + 1
+      player.associate_character(clone)
     end
   end
 end)
@@ -116,8 +117,9 @@ end)
 -- Event handler for when a building is destroyed
 script.on_event(defines.events.on_entity_died, function(event)
   if event.entity then
-    local machine = event.entity
-    if machine.name == "cloning-machine" then
+    if event.entity.name == "cloning-machine" then
+
+      local machine = event.entity
       if machine.name_tag then
         local nametag = machine.name_tag
         string.sub(nametag, 3)
@@ -128,6 +130,32 @@ script.on_event(defines.events.on_entity_died, function(event)
               tag.destroy()
             end
           end
+        end
+      end
+    elseif event.entity.name == "character_cloned" then
+      local clone = event.entity
+      --if clone.player then
+      --  clone.player.print(clone.player.name)
+      --end
+      if not clone.player then
+        local nametag = clone.name_tag or ""
+        local maptag = clone.force.find_chart_tags(clone.surface, {{clone.position.x -1, clone.position.y -1}, {clone.position.x + 1, clone.position.y + 1}})
+        if maptag then
+          for _, tag in pairs(maptag) do
+            if string.find(tag.text, nametag) then
+              tag.destroy()
+            end
+          end
+        end
+        local player = nil
+        if clone.last_user then
+          player = clone.last_user
+        elseif clone.associated_player then
+          player = clone.associated_player
+        end
+
+        if player then
+          player.print(player.name .. " " .. nametag .. " has died")
         end
       end
     end
