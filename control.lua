@@ -8,12 +8,17 @@ local Public = {}
 
 --end
 
-script.on_event(defines.events.on_built_entity, function(event)
+script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity}, function(event) --
   if event.entity and event.entity.name == "cloning-machine" then
-    local machine = event.entity
-    --spawn_clone_with_cloning_machine()
 
-    local player = game.players[event.player_index]
+    local machine = event.entity
+    local player = nil
+    --spawn_clone_with_cloning_machine()
+    if event.player_index then
+      player = game.players[event.player_index]
+    elseif machine.last_user then
+      player = event.entity.last_user
+    end
     if not (player and player.character and player.character.valid) then
       return
     end
@@ -70,9 +75,6 @@ script.on_event(defines.events.on_built_entity, function(event)
       table.insert(storage.characters[player.index], current_index + 1, clone)
       storage.currentclonenumber[player.index] = storage.currentclonenumber[player.index] + 1
     end
-
-
-
   end
 end)
 --on entity destroyed: remove entity tag, kill related clone
@@ -113,14 +115,22 @@ end)
 
 -- Event handler for when a building is destroyed
 script.on_event(defines.events.on_entity_died, function(event)
-  if event.entity
-    if event.entity.name == "cloning-machine" and event.force == player then
-
-    if event.entity.name_tag then
-      local nametag = event.entity.name_tag
-      string.sub(nametag, 3)
-      --local maptag = player.force.find_chart_tags(player.character.surface, {{player.position.x -1, player.position.y -1}, {player.position.x + 1, player.position.y + 1}})
-
+  if event.entity then
+    local machine = event.entity
+    if machine.name == "cloning-machine" then
+      if machine.name_tag then
+        local nametag = machine.name_tag
+        string.sub(nametag, 3)
+        local maptag = machine.force.find_chart_tags(machine.surface, {{machine.position.x -1, machine.position.y -1}, {machine.position.x + 1, machine.position.y + 1}})
+        if maptag then
+          for _, tag in pairs(maptag) do
+            if tag.text == machine.name_tag then
+              tag.destroy()
+            end
+          end
+        end
+      end
+    end
   end
 end)
 
