@@ -162,6 +162,47 @@ script.on_event(defines.events.on_entity_died, function(event)
   end
 end)
 
+-- Blocks the clones on surface by adding an invisible item until rocket silo is closed.
+
+script.on_event(defines.events.on_gui_opened, function(event)
+  local player = game.players[event.player_index]
+  if player.character and player.character.name == "character_cloned" then
+    if event.entity and event.entity.type == "rocket-silo" and player.character.get_main_inventory() then
+      local inv = player.character.get_main_inventory()
+      if inv.is_empty() then
+        inv.insert({name="dummy-empty-item", count=1})
+      end
+    end
+  end
+end)
+
+script.on_event(defines.events.on_player_main_inventory_changed, function(event)
+  local player = game.players[event.player_index]
+  if player and player.valid and player.opened and player.opened.type == "rocket-silo" and player.character and player.character.name == "character_cloned" then
+    if player.cursor_stack and player.cursor_stack.valid and player.cursor_stack.valid_for_read and player.cursor_stack.name then
+      if player.cursor_stack.name == "dummy-empty-item" then
+        player.cursor_stack.clear()
+      end
+    end
+    local inv = player.character.get_main_inventory()
+    if inv.is_empty() then
+      inv.insert({name="dummy-empty-item", count=1})
+    end
+  end
+end)
+
+script.on_event(defines.events.on_gui_closed, function(event)
+  local player = game.players[event.player_index]
+  if player.character and player.character.name == "character_cloned" then
+    if event.entity and event.entity.type == "rocket-silo" and player.character.get_main_inventory() then
+      local inv = player.character.get_main_inventory()
+      if inv.find_item_stack("dummy-empty-item") then
+        inv.find_item_stack("dummy-empty-item").clear()
+      end
+    end
+  end
+end)
+
 -- Event handler for when a player switches controllers
 script.on_event(defines.events.on_player_controller_changed, function(event)
   local player = game.players[event.player_index]

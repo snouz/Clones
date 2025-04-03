@@ -72,6 +72,18 @@ data:extend({
     stack_size = 1,
   },]]
   {
+    type = "item",
+    name = "dummy-empty-item",
+    icon = "__core__/graphics/empty.png",
+    icon_size = 1,
+    stack_size = 1,
+    hidden = true,
+    hidden_in_factoriopedia = true,
+    flags = {"not-stackable", "excluded-from-trash-unrequested"},
+    parameter = true,
+    weight = 1000000 * kg
+  },
+  {
     type = "technology",
     name = "character-cloning",
     icon = "__Clones__/graphics/technology/clones-technology.png",
